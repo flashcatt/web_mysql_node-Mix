@@ -4,10 +4,10 @@ const mysql = require('mysql');
 
 // 创建数据库连接
 const connection = mysql.createConnection({
-  host: '124.223.172.225',
-  user: 'root1',
-  password: 'Mysql123.',
-  database: 'todo'
+  host: '',
+  user: '',
+  password: '',
+  database: ''
 });
 
 // 连接数据库
