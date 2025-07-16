@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手机数据查询</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+            background-color: #f5f5f5;
+        }
+        
+        #content-box {
+            width: 800px;
+            height: 400px;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .delete-btn {
+            background-color: #ff4444;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <button id="query-button">查询手机数据</button>
+    <div id="content-box"></div>
+    
+    <script>
+        document.getElementById('query-button').addEventListener('click', function() {
+            fetch('http://localhost:3000/query')
+                .then(response => response.json())
+                .then(data => {
+                    // 清空内容盒
+                    document.getElementById('content-box').innerHTML = '<h2>手机数据</h2><table><thead><tr><th>型号</th><th>尺寸</th><th>分辨率</th><th>运存</th><th>电池容量</th><th>操作</th></tr></thead><tbody></tbody></table>';
+                    
+                    // 获取表格主体
+                    const tbody = document.querySelector('tbody');
+                    
+                    // 遍历数据并创建表格行
+                    data.rawData.forEach(item => {
+                        const row = document.createElement('tr');//创建行
+                        row.innerHTML = `<td>${item.model}</td>
+                                         <td>${item.size}</td>
+                                         <td>${item.resolution}</td>
+                                         <td>${item.ram} GB</td>
+                                         <td>${item.battery} mAh</td>
+                                         <td><button class="delete-btn" data-model="${item.model}">删除</button></td>`;
+                        tbody.appendChild(row);
+                    });
+
+                    // 添加删除事件监听
+                    tbody.addEventListener('click', function(e) {
+                        if(e.target.classList.contains('delete-btn')) {
+                            const model = e.target.dataset.model;
+                            fetch('http://localhost:3000/delete', {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ model: model })
+                            })
+                            .then(response => {
+                                if(response.ok) {
+                                    e.target.closest('tr').remove();
+                                    
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+        
+    </script>
+</body>
+</html>
